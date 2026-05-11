@@ -22,13 +22,14 @@ export interface RecipeIngredient {
 export interface Recipe {
   id: string;
   name: string;
+  yields: number;
   ingredients: RecipeIngredient[];
 }
 
-export type TortaType = 'frango-trad' | 'frango-catupiry' | 'calabresa';
+export type TortaType = string;
 
 export interface TortaProduct {
-  id: TortaType;
+  id: string;
   name: string;
   recipeIds: string[];
   color: string;
@@ -37,14 +38,14 @@ export interface TortaProduct {
 export interface Sale {
   id: string;
   date: string;
-  tortaType: TortaType;
+  tortaType: string;
   quantity: number;
   salePrice: number;
   costPerUnit: number;
 }
 
 export interface Settings {
-  salePrices: Record<TortaType, number>;
+  salePrices: Record<string, number>;
 }
 
 export interface AppData {

@@ -15,8 +15,17 @@ export function calcIngredientCost(
   return (last.price / last.packageQuantity) * ri.amount;
 }
 
+export function calcIngredientCostPerTorta(
+  ri: RecipeIngredient,
+  purchases: Purchase[],
+  yields: number
+): number {
+  return calcIngredientCost(ri, purchases) / (yields || 1);
+}
+
 export function calcRecipeCost(recipe: Recipe, purchases: Purchase[]): number {
-  return recipe.ingredients.reduce((sum, ri) => sum + calcIngredientCost(ri, purchases), 0);
+  const total = recipe.ingredients.reduce((sum, ri) => sum + calcIngredientCost(ri, purchases), 0);
+  return total / (recipe.yields ?? 1);
 }
 
 export function calcTortaCost(

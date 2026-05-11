@@ -8,13 +8,7 @@ import { useAppData } from '../hooks/useAppData';
 import {
   calcTortaCost, formatCurrency, formatDate, getMonthLabel,
 } from '../utils/costCalculator';
-import type { Sale, TortaType } from '../types';
-
-const TORTA_OPTIONS: { id: TortaType; label: string; color: string }[] = [
-  { id: 'frango-trad', label: 'Frango Tradicional', color: '#f59e0b' },
-  { id: 'frango-catupiry', label: 'Frango c/ Catupiry', color: '#fb923c' },
-  { id: 'calabresa', label: 'Calabresa', color: '#ef4444' },
-];
+import type { Sale } from '../types';
 
 function NovaVendaModal({
   open,
@@ -25,24 +19,18 @@ function NovaVendaModal({
   open: boolean;
   onClose: () => void;
   onSave: (s: Sale) => void;
-  defaultSalePrices: Record<TortaType, number>;
+  defaultSalePrices: Record<string, number>;
 }) {
+  const { products, recipes, purchases } = useAppData();
   const today = new Date().toISOString().split('T')[0];
-  const [tortaType, setTortaType] = useState<TortaType>('frango-trad');
+  const [tortaType, setTortaType] = useState<string>(() => products[0]?.id ?? '');
   const [quantity, setQuantity] = useState('1');
   const [salePrice, setSalePrice] = useState('');
   const [date, setDate] = useState(today);
 
-  const { products, recipes, purchases } = useAppData();
-
-  function handleOpen() {
-    const defPrice = defaultSalePrices[tortaType];
-    if (defPrice && !salePrice) setSalePrice(String(defPrice));
-  }
-
-  function handleTortaChange(t: TortaType) {
-    setTortaType(t);
-    const defPrice = defaultSalePrices[t];
+  function handleTortaChange(id: string) {
+    setTortaType(id);
+    const defPrice = defaultSalePrices[id];
     if (defPrice) setSalePrice(String(defPrice));
   }
 
@@ -64,29 +52,29 @@ function NovaVendaModal({
     onClose();
   }
 
-  const selected = TORTA_OPTIONS.find((t) => t.id === tortaType);
+  const selected = products.find((p) => p.id === tortaType);
 
   return (
     <Modal open={open} onClose={onClose} title="Registrar Venda">
-      <div className="space-y-4" onFocus={handleOpen}>
+      <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-stone-600 mb-2">Tipo de Torta</label>
           <div className="grid grid-cols-1 gap-2">
-            {TORTA_OPTIONS.map((t) => (
+            {products.map((p) => (
               <button
-                key={t.id}
-                onClick={() => handleTortaChange(t.id)}
+                key={p.id}
+                onClick={() => handleTortaChange(p.id)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all text-left ${
-                  tortaType === t.id
+                  tortaType === p.id
                     ? 'border-brand-400 bg-brand-50'
                     : 'border-stone-200 bg-white'
                 }`}
               >
                 <span
                   className="w-3 h-3 rounded-full shrink-0"
-                  style={{ backgroundColor: t.color }}
+                  style={{ backgroundColor: p.color }}
                 />
-                <span className="text-sm font-medium">{t.label}</span>
+                <span className="text-sm font-medium">{p.name}</span>
               </button>
             ))}
           </div>
@@ -146,7 +134,7 @@ function NovaVendaModal({
           disabled={!quantity || !salePrice}
           onClick={handleSave}
         >
-          Registrar {parseInt(quantity || '1', 10)}x {selected?.label}
+          Registrar {parseInt(quantity || '1', 10)}x {selected?.name}
         </Button>
       </div>
     </Modal>
@@ -218,7 +206,6 @@ export function Vendas() {
 
                 <div className="space-y-2">
                   {monthSales.map((sale) => {
-                    const option = TORTA_OPTIONS.find((t) => t.id === sale.tortaType);
                     const product = products.find((p) => p.id === sale.tortaType);
                     const totalVal = sale.salePrice * sale.quantity;
                     const totalCostVal = sale.costPerUnit * sale.quantity;
@@ -229,7 +216,7 @@ export function Vendas() {
                         <div className="flex items-center gap-3">
                           <span
                             className="w-2.5 h-2.5 rounded-full shrink-0 mt-0.5"
-                            style={{ backgroundColor: option?.color ?? '#ccc' }}
+                            style={{ backgroundColor: product?.color ?? '#ccc' }}
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">

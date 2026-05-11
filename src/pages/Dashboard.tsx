@@ -12,18 +12,19 @@ import { useAppData } from '../hooks/useAppData';
 import {
   calcTortaCost, formatCurrency, getMonthLabel,
 } from '../utils/costCalculator';
-import type { TortaType } from '../types';
 
 function SettingsModal({
   open,
   onClose,
+  products,
   salePrices,
   onSave,
 }: {
   open: boolean;
   onClose: () => void;
-  salePrices: Record<TortaType, number>;
-  onSave: (prices: Record<TortaType, number>) => void;
+  products: { id: string; name: string }[];
+  salePrices: Record<string, number>;
+  onSave: (prices: Record<string, number>) => void;
 }) {
   const [prices, setPrices] = useState({ ...salePrices });
 
@@ -35,16 +36,10 @@ function SettingsModal({
   return (
     <Modal open={open} onClose={onClose} title="Preços de Venda">
       <div className="space-y-4">
-        {(
-          [
-            { id: 'frango-trad' as TortaType, label: 'Frango Tradicional' },
-            { id: 'frango-catupiry' as TortaType, label: 'Frango c/ Catupiry' },
-            { id: 'calabresa' as TortaType, label: 'Calabresa' },
-          ] as { id: TortaType; label: string }[]
-        ).map(({ id, label }) => (
+        {products.map(({ id, name }) => (
           <div key={id}>
             <label className="block text-sm font-medium text-stone-600 mb-1.5">
-              {label}
+              {name}
             </label>
             <div className="flex items-center gap-2">
               <span className="text-stone-500 text-sm">R$</span>
@@ -265,6 +260,7 @@ export function Dashboard() {
       <SettingsModal
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
+        products={products}
         salePrices={settings.salePrices}
         onSave={(prices) =>
           updateSettings({ ...settings, salePrices: prices })

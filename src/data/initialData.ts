@@ -56,22 +56,24 @@ export const INITIAL_RECIPES: Recipe[] = [
   {
     id: 'massa',
     name: 'Massa',
+    yields: 30,
     ingredients: [
-      { ingredientId: 'ovo', amount: 0.1 },       // 3 ovos ÷ 30 tortas
-      { ingredientId: 'farinha', amount: 4.27 },   // 128g ÷ 30
-      { ingredientId: 'oleo', amount: 8.33 },      // 250ml ÷ 30
-      { ingredientId: 'leite', amount: 16.67 },    // 500ml ÷ 30
-      { ingredientId: 'sal', amount: 0.17 },       // 5g ÷ 30
-      { ingredientId: 'queijo-parmesao', amount: 0.33 }, // 10g ÷ 30
-      { ingredientId: 'catupiry', amount: 0.5 },   // 15g ÷ 30
-      { ingredientId: 'fermento', amount: 0.33 },  // 10g ÷ 30
-      { ingredientId: 'embalagem', amount: 1 },    // 1 por torta
-      { ingredientId: 'sacola', amount: 1 },       // 1 por torta
+      { ingredientId: 'ovo', amount: 3 },
+      { ingredientId: 'farinha', amount: 128 },
+      { ingredientId: 'oleo', amount: 250 },
+      { ingredientId: 'leite', amount: 500 },
+      { ingredientId: 'sal', amount: 5 },
+      { ingredientId: 'queijo-parmesao', amount: 10 },
+      { ingredientId: 'catupiry', amount: 15 },
+      { ingredientId: 'fermento', amount: 10 },
+      { ingredientId: 'embalagem', amount: 30 },
+      { ingredientId: 'sacola', amount: 30 },
     ],
   },
   {
     id: 'recheio-frango',
     name: 'Recheio de Frango',
+    yields: 1,
     ingredients: [
       { ingredientId: 'frango', amount: 60 },
       { ingredientId: 'molho-tomate', amount: 200 },
@@ -90,6 +92,7 @@ export const INITIAL_RECIPES: Recipe[] = [
   {
     id: 'recheio-frango-catupiry',
     name: 'Recheio de Frango c/ Catupiry',
+    yields: 1,
     ingredients: [
       { ingredientId: 'frango', amount: 60 },
       { ingredientId: 'molho-tomate', amount: 200 },
@@ -109,6 +112,7 @@ export const INITIAL_RECIPES: Recipe[] = [
   {
     id: 'recheio-calabresa',
     name: 'Recheio de Calabresa',
+    yields: 1,
     ingredients: [
       { ingredientId: 'calabresa', amount: 60 },
       { ingredientId: 'molho-tomate', amount: 200 },
@@ -155,4 +159,4 @@ export const INITIAL_SETTINGS: Settings = {
   },
 };
 
-export const DATA_VERSION = '1.2';
+export const DATA_VERSION = '1.5';
