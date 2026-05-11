@@ -1,0 +1,16 @@
+{
+  "name": "vkTortas - Calculadora",
+  "short_name": "vkTortas",
+  "description": "Calculadora de custos para produção de tortas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafaf9",
+  "theme_color": "#f59e0b",
+  "icons": [
+    {
+      "src": "/pie.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
