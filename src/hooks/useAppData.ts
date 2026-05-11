@@ -5,8 +5,24 @@ import {
   INITIAL_RECIPES,
   INITIAL_PRODUCTS,
   INITIAL_SETTINGS,
+  DATA_VERSION,
 } from '../data/initialData';
 import type { Ingredient, Purchase, Recipe, TortaProduct, Sale, Settings } from '../types';
+
+const STORAGE_KEYS = [
+  'vkt_ingredients', 'vkt_recipes', 'vkt_products',
+  'vkt_purchases', 'vkt_sales', 'vkt_settings',
+];
+
+function migrateIfNeeded() {
+  const stored = localStorage.getItem('vkt_version');
+  if (stored !== DATA_VERSION) {
+    STORAGE_KEYS.forEach((k) => localStorage.removeItem(k));
+    localStorage.setItem('vkt_version', DATA_VERSION);
+  }
+}
+
+migrateIfNeeded();
 
 export function useAppData() {
   const [ingredients, setIngredients] = useLocalStorage<Ingredient[]>(
