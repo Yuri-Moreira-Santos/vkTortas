@@ -576,34 +576,47 @@ export function Receitas() {
                     {recipe.ingredients.map((ri, i) => {
                       const ing = ingredients.find((x) => x.id === ri.ingredientId);
                       if (!ing) return null;
-                      const cost = calcIngredientCostPerTorta(ri, purchases, recipe.yields);
-                      const hasPrice = !!getLastPurchase(ri.ingredientId, purchases);
+                      const last = getLastPurchase(ri.ingredientId, purchases);
+                      const hasPrice = !!last;
+                      const batchCost = hasPrice
+                        ? (last!.price / last!.packageQuantity) * ri.amount
+                        : 0;
+                      const perTortaCost = batchCost / (recipe.yields || 1);
 
                       return (
                         <div
                           key={ri.ingredientId}
-                          className={`flex items-center gap-2 px-4 py-2.5 ${
+                          className={`flex items-start gap-2 px-4 py-2.5 ${
                             i < recipe.ingredients.length - 1 ? 'border-b border-stone-50' : ''
                           }`}
                         >
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-stone-700 truncate">{ing.name}</p>
+                            <InlineAmountInput
+                              value={ri.amount}
+                              unit={ing.unit}
+                              onSave={(v) => updateRecipeIngredientAmount(recipe.id, ri.ingredientId, v)}
+                            />
                           </div>
-                          <InlineAmountInput
-                            value={ri.amount}
-                            unit={ing.unit}
-                            onSave={(v) => updateRecipeIngredientAmount(recipe.id, ri.ingredientId, v)}
-                          />
-                          <div className="w-16 text-right shrink-0">
+                          <div className="text-right shrink-0">
                             {hasPrice ? (
-                              <p className="text-xs font-semibold text-stone-600">{formatCurrency(cost)}</p>
+                              <>
+                                <p className="text-sm font-semibold text-stone-700">
+                                  {formatCurrency(batchCost)}
+                                </p>
+                                {recipe.yields > 1 && (
+                                  <p className="text-xs text-stone-400">
+                                    {formatCurrency(perTortaCost)}/torta
+                                  </p>
+                                )}
+                              </>
                             ) : (
                               <span className="text-xs text-amber-500">sem preço</span>
                             )}
                           </div>
                           <button
                             onClick={() => removeIngredientFromRecipe(recipe.id, ri.ingredientId)}
-                            className="text-stone-300 active:text-red-400 transition-colors shrink-0"
+                            className="text-stone-300 active:text-red-400 transition-colors shrink-0 mt-1"
                           >
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
                               <line x1="18" y1="6" x2="6" y2="18" />

@@ -59,15 +59,15 @@ export const INITIAL_RECIPES: Recipe[] = [
     yields: 30,
     ingredients: [
       { ingredientId: 'ovo', amount: 3 },
-      { ingredientId: 'farinha', amount: 128 },
+      { ingredientId: 'farinha', amount: 384 },
       { ingredientId: 'oleo', amount: 250 },
       { ingredientId: 'leite', amount: 500 },
       { ingredientId: 'sal', amount: 5 },
       { ingredientId: 'queijo-parmesao', amount: 10 },
       { ingredientId: 'catupiry', amount: 15 },
       { ingredientId: 'fermento', amount: 10 },
-      { ingredientId: 'embalagem', amount: 30 },
-      { ingredientId: 'sacola', amount: 30 },
+      { ingredientId: 'embalagem', amount: 1 },
+      { ingredientId: 'sacola', amount: 1 },
     ],
   },
   {
