@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend,
@@ -12,6 +12,11 @@ import { useAppData } from '../hooks/useAppData';
 import {
   calcTortaCost, formatCurrency, getMonthLabel,
 } from '../utils/costCalculator';
+import {
+  exportFullBackup, exportRecipeTemplate, exportMonthlyCSV,
+  importSnapshot, getAvailableMonths,
+} from '../utils/exportImport';
+import type { AppSnapshot } from '../utils/exportImport';
 
 function SettingsModal({
   open,
@@ -66,9 +71,155 @@ function SettingsModal({
   );
 }
 
+function DataModal({
+  open, onClose, appData, onImport,
+}: {
+  open: boolean;
+  onClose: () => void;
+  appData: {
+    ingredients: ReturnType<typeof useAppData>['ingredients'];
+    recipes: ReturnType<typeof useAppData>['recipes'];
+    products: ReturnType<typeof useAppData>['products'];
+    purchases: ReturnType<typeof useAppData>['purchases'];
+    sales: ReturnType<typeof useAppData>['sales'];
+    settings: ReturnType<typeof useAppData>['settings'];
+  };
+  onImport: (snapshot: AppSnapshot) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [selectedMonth, setSelectedMonth] = useState('');
+  const [importError, setImportError] = useState('');
+  const [importing, setImporting] = useState(false);
+
+  const availableMonths = getAvailableMonths(appData.sales, appData.purchases);
+
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const defaultMonth = availableMonths[0] ?? currentMonth;
+
+  async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImportError('');
+    setImporting(true);
+    try {
+      const snapshot = await importSnapshot(file);
+      if (confirm(`Importar ${snapshot.type === 'vktortas-backup' ? 'backup completo' : 'template de receitas'}?\n\nExportado em: ${new Date(snapshot.exportedAt).toLocaleString('pt-BR')}`)) {
+        onImport(snapshot);
+        onClose();
+      }
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : 'Erro desconhecido');
+    } finally {
+      setImporting(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  }
+
+  const month = selectedMonth || defaultMonth;
+
+  return (
+    <Modal open={open} onClose={onClose} title="Exportar / Importar">
+      <div className="space-y-5">
+        <section>
+          <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">Exportar</p>
+          <div className="space-y-2">
+            <div>
+              <label className="block text-xs text-stone-500 mb-1.5">Relatório mensal (CSV — abre no Excel)</label>
+              <div className="flex gap-2">
+                <select
+                  value={month}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="flex-1 border border-stone-200 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-400"
+                >
+                  {availableMonths.length === 0 && (
+                    <option value={currentMonth}>{getMonthLabel(currentMonth + '-01')}</option>
+                  )}
+                  {availableMonths.map((m) => (
+                    <option key={m} value={m}>{getMonthLabel(m + '-01')}</option>
+                  ))}
+                </select>
+                <Button
+                  size="sm"
+                  onClick={() => exportMonthlyCSV(
+                    month,
+                    appData.sales,
+                    appData.purchases,
+                    appData.products,
+                    appData.ingredients,
+                    appData.recipes,
+                  )}
+                >
+                  CSV
+                </Button>
+              </div>
+            </div>
+
+            <button
+              onClick={() => exportFullBackup(appData)}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-stone-200 text-left active:bg-stone-50 transition-colors"
+            >
+              <span className="text-xl">💾</span>
+              <div>
+                <p className="text-sm font-medium text-stone-700">Backup Completo</p>
+                <p className="text-xs text-stone-400">JSON com todos os dados — para restaurar ou migrar dispositivo</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => exportRecipeTemplate({
+                ingredients: appData.ingredients,
+                recipes: appData.recipes,
+                products: appData.products,
+                purchases: appData.purchases,
+              })}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-stone-200 text-left active:bg-stone-50 transition-colors"
+            >
+              <span className="text-xl">🔗</span>
+              <div>
+                <p className="text-sm font-medium text-stone-700">Template de Receitas</p>
+                <p className="text-xs text-stone-400">JSON com receitas e preços — para compartilhar com outra loja</p>
+              </div>
+            </button>
+          </div>
+        </section>
+
+        <div className="border-t border-stone-100" />
+
+        <section>
+          <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">Importar</p>
+          {importError && (
+            <p className="text-sm text-red-500 bg-red-50 rounded-xl px-3 py-2 mb-3">{importError}</p>
+          )}
+          <button
+            onClick={() => fileRef.current?.click()}
+            disabled={importing}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-dashed border-stone-200 text-left active:bg-stone-50 transition-colors disabled:opacity-50"
+          >
+            <span className="text-xl">📥</span>
+            <div>
+              <p className="text-sm font-medium text-stone-700">
+                {importing ? 'Carregando...' : 'Selecionar arquivo JSON'}
+              </p>
+              <p className="text-xs text-stone-400">Backup completo ou template de receitas</p>
+            </div>
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".json,application/json"
+            className="hidden"
+            onChange={handleImport}
+          />
+        </section>
+      </div>
+    </Modal>
+  );
+}
+
 export function Dashboard() {
-  const { products, recipes, purchases, sales, settings, updateSettings } = useAppData();
+  const { products, recipes, ingredients, purchases, sales, settings, updateSettings } = useAppData();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [dataOpen, setDataOpen] = useState(false);
 
   const tortaStats = useMemo(
     () =>
@@ -122,6 +273,17 @@ export function Dashboard() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
               <circle cx="12" cy="12" r="3" />
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </button>
+          <button
+            onClick={() => setDataOpen(true)}
+            className="p-2 rounded-xl text-stone-400 active:bg-stone-100 transition-colors"
+            title="Exportar / Importar"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
             </svg>
           </button>
         }
@@ -265,6 +427,25 @@ export function Dashboard() {
         onSave={(prices) =>
           updateSettings({ ...settings, salePrices: prices })
         }
+      />
+      <DataModal
+        open={dataOpen}
+        onClose={() => setDataOpen(false)}
+        appData={{ ingredients, recipes, products, purchases, sales, settings }}
+        onImport={(snapshot) => {
+          const isFullBackup = snapshot.type === 'vktortas-backup';
+          localStorage.setItem('vkt_ingredients', JSON.stringify(snapshot.ingredients));
+          localStorage.setItem('vkt_recipes', JSON.stringify(snapshot.recipes));
+          localStorage.setItem('vkt_products', JSON.stringify(snapshot.products));
+          localStorage.setItem('vkt_purchases', JSON.stringify(snapshot.purchases));
+          if (isFullBackup && snapshot.sales) {
+            localStorage.setItem('vkt_sales', JSON.stringify(snapshot.sales));
+          }
+          if (isFullBackup && snapshot.settings) {
+            localStorage.setItem('vkt_settings', JSON.stringify(snapshot.settings));
+          }
+          window.location.reload();
+        }}
       />
     </>
   );
