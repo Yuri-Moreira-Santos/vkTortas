@@ -266,6 +266,7 @@ export function Dashboard() {
       <Header
         title="vkTortas"
         action={
+          <div className="flex items-center gap-1">
           <button
             onClick={() => setSettingsOpen(true)}
             className="p-2 rounded-xl text-stone-400 active:bg-stone-100 transition-colors"
@@ -286,6 +287,7 @@ export function Dashboard() {
               <line x1="12" y1="3" x2="12" y2="15" />
             </svg>
           </button>
+          </div>
         }
       />
 
