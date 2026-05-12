@@ -1,5 +1,5 @@
 import type { Ingredient, Purchase, Recipe, TortaProduct, Sale, Settings } from '../types';
-import { formatCurrency, getMonthLabel } from './costCalculator';
+import { getMonthLabel } from './costCalculator';
 
 export interface AppSnapshot {
   type: 'vktortas-backup' | 'vktortas-template';
