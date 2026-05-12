@@ -25,31 +25,31 @@ export const INITIAL_INGREDIENTS: Ingredient[] = [
   { id: 'calabresa', name: 'Calabresa', unit: 'g' },
 ];
 
-const TODAY = new Date().toISOString().split('T')[0];
+const INITIAL_DATE = '2026-05-01';
 
 export const INITIAL_PURCHASES: Purchase[] = [
-  { id: 'p-ovo', ingredientId: 'ovo', date: TODAY, price: 14.00, packageQuantity: 20 },
-  { id: 'p-farinha', ingredientId: 'farinha', date: TODAY, price: 4.79, packageQuantity: 1000 },
-  { id: 'p-oleo', ingredientId: 'oleo', date: TODAY, price: 6.45, packageQuantity: 900 },
-  { id: 'p-leite', ingredientId: 'leite', date: TODAY, price: 4.79, packageQuantity: 1000 },
-  { id: 'p-sal', ingredientId: 'sal', date: TODAY, price: 2.50, packageQuantity: 1000 },
-  { id: 'p-queijo', ingredientId: 'queijo-parmesao', date: TODAY, price: 3.39, packageQuantity: 40 },
-  { id: 'p-catupiry', ingredientId: 'catupiry', date: TODAY, price: 43.45, packageQuantity: 1500 },
-  { id: 'p-fermento', ingredientId: 'fermento', date: TODAY, price: 3.79, packageQuantity: 150 },
-  { id: 'p-embalagem', ingredientId: 'embalagem', date: TODAY, price: 45.00, packageQuantity: 100 },
-  { id: 'p-sacola', ingredientId: 'sacola', date: TODAY, price: 5.00, packageQuantity: 50 },
-  { id: 'p-frango', ingredientId: 'frango', date: TODAY, price: 11.99, packageQuantity: 1000 },
-  { id: 'p-molho', ingredientId: 'molho-tomate', date: TODAY, price: 4.00, packageQuantity: 340 },
-  { id: 'p-azeitona', ingredientId: 'azeitona', date: TODAY, price: 5.99, packageQuantity: 185 },
-  { id: 'p-cebola', ingredientId: 'cebola', date: TODAY, price: 2.99, packageQuantity: 4 },
-  { id: 'p-alho', ingredientId: 'alho', date: TODAY, price: 3.00, packageQuantity: 15 },
-  { id: 'p-milho', ingredientId: 'milho', date: TODAY, price: 2.59, packageQuantity: 285 },
-  { id: 'p-paprica', ingredientId: 'paprica', date: TODAY, price: 10.00, packageQuantity: 200 },
-  { id: 'p-sazon', ingredientId: 'sazon', date: TODAY, price: 6.00, packageQuantity: 120 },
-  { id: 'p-tempero', ingredientId: 'tempero-pronto', date: TODAY, price: 6.15, packageQuantity: 136 },
-  { id: 'p-pimenta', ingredientId: 'pimenta-reino', date: TODAY, price: 4.00, packageQuantity: 40 },
-  { id: 'p-cheiro-verde', ingredientId: 'cheiro-verde', date: TODAY, price: 5.39, packageQuantity: 60 },
-  { id: 'p-calabresa', ingredientId: 'calabresa', date: TODAY, price: 24.22, packageQuantity: 750 },
+  { id: 'p-ovo', ingredientId: 'ovo', date: INITIAL_DATE, price: 14.00, packageQuantity: 20 },
+  { id: 'p-farinha', ingredientId: 'farinha', date: INITIAL_DATE, price: 4.79, packageQuantity: 1000 },
+  { id: 'p-oleo', ingredientId: 'oleo', date: INITIAL_DATE, price: 6.45, packageQuantity: 900 },
+  { id: 'p-leite', ingredientId: 'leite', date: INITIAL_DATE, price: 4.79, packageQuantity: 1000 },
+  { id: 'p-sal', ingredientId: 'sal', date: INITIAL_DATE, price: 2.50, packageQuantity: 1000 },
+  { id: 'p-queijo', ingredientId: 'queijo-parmesao', date: INITIAL_DATE, price: 3.39, packageQuantity: 40 },
+  { id: 'p-catupiry', ingredientId: 'catupiry', date: INITIAL_DATE, price: 43.45, packageQuantity: 1500 },
+  { id: 'p-fermento', ingredientId: 'fermento', date: INITIAL_DATE, price: 3.79, packageQuantity: 150 },
+  { id: 'p-embalagem', ingredientId: 'embalagem', date: INITIAL_DATE, price: 45.00, packageQuantity: 100 },
+  { id: 'p-sacola', ingredientId: 'sacola', date: INITIAL_DATE, price: 5.00, packageQuantity: 50 },
+  { id: 'p-frango', ingredientId: 'frango', date: INITIAL_DATE, price: 11.99, packageQuantity: 1000 },
+  { id: 'p-molho', ingredientId: 'molho-tomate', date: INITIAL_DATE, price: 4.00, packageQuantity: 340 },
+  { id: 'p-azeitona', ingredientId: 'azeitona', date: INITIAL_DATE, price: 5.99, packageQuantity: 185 },
+  { id: 'p-cebola', ingredientId: 'cebola', date: INITIAL_DATE, price: 2.99, packageQuantity: 4 },
+  { id: 'p-alho', ingredientId: 'alho', date: INITIAL_DATE, price: 3.00, packageQuantity: 15 },
+  { id: 'p-milho', ingredientId: 'milho', date: INITIAL_DATE, price: 2.59, packageQuantity: 285 },
+  { id: 'p-paprica', ingredientId: 'paprica', date: INITIAL_DATE, price: 10.00, packageQuantity: 200 },
+  { id: 'p-sazon', ingredientId: 'sazon', date: INITIAL_DATE, price: 6.00, packageQuantity: 120 },
+  { id: 'p-tempero', ingredientId: 'tempero-pronto', date: INITIAL_DATE, price: 6.15, packageQuantity: 136 },
+  { id: 'p-pimenta', ingredientId: 'pimenta-reino', date: INITIAL_DATE, price: 4.00, packageQuantity: 40 },
+  { id: 'p-cheiro-verde', ingredientId: 'cheiro-verde', date: INITIAL_DATE, price: 5.39, packageQuantity: 60 },
+  { id: 'p-calabresa', ingredientId: 'calabresa', date: INITIAL_DATE, price: 24.22, packageQuantity: 750 },
 ];
 
 export const INITIAL_RECIPES: Recipe[] = [
@@ -159,4 +159,4 @@ export const INITIAL_SETTINGS: Settings = {
   },
 };
 
-export const DATA_VERSION = '1.5';
+export const DATA_VERSION = '1.6';
