@@ -112,30 +112,36 @@ export function exportMonthlyCSV(
   rows.push('');
 
   rows.push(csvRow(['=== VENDAS ===']));
-  rows.push(csvRow(['Data', 'Produto', 'Quantidade', 'Preço/un (R$)', 'Total (R$)', 'Custo/un (R$)', 'Lucro (R$)']));
+  rows.push(csvRow(['Data', 'Cliente', 'Pago em', 'Produto', 'Quantidade', 'Preço/un (R$)', 'Total (R$)', 'Custo/un (R$)', 'Lucro (R$)']));
   monthSales
     .sort((a, b) => a.date.localeCompare(b.date))
     .forEach((s) => {
-      const product = products.find((p) => p.id === s.tortaType);
       const [y, m, d] = s.date.split('-');
-      rows.push(csvRow([
-        `${d}/${m}/${y}`,
-        product?.name ?? s.tortaType,
-        String(s.quantity),
-        br(s.salePrice),
-        br(s.salePrice * s.quantity),
-        br(s.costPerUnit),
-        br((s.salePrice - s.costPerUnit) * s.quantity),
-      ]));
+      const paidLabel = s.paidAt ? (() => { const [py, pm, pd] = s.paidAt!.split('-'); return `${pd}/${pm}/${py}`; })() : 'A receber';
+      s.items.forEach((item) => {
+        const product = products.find((p) => p.id === item.tortaType);
+        rows.push(csvRow([
+          `${d}/${m}/${y}`,
+          s.customerName || 'Sem nome',
+          paidLabel,
+          product?.name ?? item.tortaType,
+          String(item.quantity),
+          br(item.salePrice),
+          br(item.salePrice * item.quantity),
+          br(item.costPerUnit),
+          br((item.salePrice - item.costPerUnit) * item.quantity),
+        ]));
+      });
     });
   rows.push('');
 
-  const totalRev = monthSales.reduce((t, s) => t + s.salePrice * s.quantity, 0);
-  const totalCost = monthSales.reduce((t, s) => t + s.costPerUnit * s.quantity, 0);
-  const totalUnits = monthSales.reduce((t, s) => t + s.quantity, 0);
+  const totalRev = monthSales.reduce((t, s) => t + s.items.reduce((si, i) => si + i.salePrice * i.quantity, 0), 0);
+  const totalCost = monthSales.reduce((t, s) => t + s.items.reduce((si, i) => si + i.costPerUnit * i.quantity, 0), 0);
+  const totalUnits = monthSales.reduce((t, s) => t + s.items.reduce((si, i) => si + i.quantity, 0), 0);
+  const totalPending = monthSales.filter((s) => !s.paidAt).reduce((t, s) => t + s.items.reduce((si, i) => si + i.salePrice * i.quantity, 0), 0);
   rows.push(csvRow(['=== RESUMO DO MÊS ===']));
-  rows.push(csvRow(['Total de Tortas', 'Receita Total (R$)', 'Custo Total (R$)', 'Lucro Líquido (R$)']));
-  rows.push(csvRow([String(totalUnits), br(totalRev), br(totalCost), br(totalRev - totalCost)]));
+  rows.push(csvRow(['Total de Tortas', 'Total Vendido (R$)', 'A Receber (R$)', 'Custo Total (R$)', 'Lucro Líquido (R$)']));
+  rows.push(csvRow([String(totalUnits), br(totalRev), br(totalPending), br(totalCost), br(totalRev - totalCost)]));
   rows.push('');
 
   rows.push(csvRow(['=== COMPRAS DO MÊS ===']));

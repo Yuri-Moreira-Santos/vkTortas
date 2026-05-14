@@ -35,13 +35,19 @@ export interface TortaProduct {
   color: string;
 }
 
-export interface Sale {
-  id: string;
-  date: string;
+export interface SaleItem {
   tortaType: string;
   quantity: number;
   salePrice: number;
   costPerUnit: number;
+}
+
+export interface Sale {
+  id: string;
+  date: string;
+  customerName: string;
+  items: SaleItem[];
+  paidAt?: string;
 }
 
 export interface Settings {

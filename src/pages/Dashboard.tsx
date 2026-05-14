@@ -232,13 +232,29 @@ export function Dashboard() {
     [products, recipes, purchases, settings]
   );
 
+  function saleRevenue(s: typeof sales[0]) {
+    return s.items.reduce((sum, i) => sum + i.salePrice * i.quantity, 0);
+  }
+  function saleCost(s: typeof sales[0]) {
+    return s.items.reduce((sum, i) => sum + i.costPerUnit * i.quantity, 0);
+  }
+  function saleUnits(s: typeof sales[0]) {
+    return s.items.reduce((sum, i) => sum + i.quantity, 0);
+  }
+
   const monthlyData = useMemo(() => {
-    const map = new Map<string, { revenue: number; cost: number }>();
+    const map = new Map<string, { recebido: number; aReceber: number; cost: number }>();
     sales.forEach((s) => {
       const key = s.date.slice(0, 7);
-      const entry = map.get(key) ?? { revenue: 0, cost: 0 };
-      entry.revenue += s.salePrice * s.quantity;
-      entry.cost += s.costPerUnit * s.quantity;
+      const entry = map.get(key) ?? { recebido: 0, aReceber: 0, cost: 0 };
+      const rev = saleRevenue(s);
+      const cost = saleCost(s);
+      if (s.paidAt) {
+        entry.recebido += rev;
+      } else {
+        entry.aReceber += rev;
+      }
+      entry.cost += cost;
       map.set(key, entry);
     });
     return Array.from(map.entries())
@@ -246,18 +262,24 @@ export function Dashboard() {
       .slice(-6)
       .map(([month, data]) => ({
         month: getMonthLabel(month + '-01'),
-        receita: parseFloat(data.revenue.toFixed(2)),
+        recebido: parseFloat(data.recebido.toFixed(2)),
+        aReceber: parseFloat(data.aReceber.toFixed(2)),
         custo: parseFloat(data.cost.toFixed(2)),
-        lucro: parseFloat((data.revenue - data.cost).toFixed(2)),
+        lucro: parseFloat((data.recebido - data.cost).toFixed(2)),
       }));
   }, [sales]);
 
   const currentMonth = new Date().toISOString().slice(0, 7);
   const thisMonthSales = sales.filter((s) => s.date.startsWith(currentMonth));
-  const thisMonthRevenue = thisMonthSales.reduce((s, x) => s + x.salePrice * x.quantity, 0);
-  const thisMonthCost = thisMonthSales.reduce((s, x) => s + x.costPerUnit * x.quantity, 0);
+  const thisMonthRevenue = thisMonthSales.reduce((s, x) => s + saleRevenue(x), 0);
+  const thisMonthCost = thisMonthSales.reduce((s, x) => s + saleCost(x), 0);
   const thisMonthProfit = thisMonthRevenue - thisMonthCost;
-  const thisMonthUnits = thisMonthSales.reduce((s, x) => s + x.quantity, 0);
+  const thisMonthUnits = thisMonthSales.reduce((s, x) => s + saleUnits(x), 0);
+
+  const totalPending = sales
+    .filter((s) => !s.paidAt)
+    .reduce((sum, s) => sum + saleRevenue(s), 0);
+  const pendingCount = sales.filter((s) => !s.paidAt).length;
 
   const allPricesSet = products.every((p) => (settings.salePrices[p.id] ?? 0) > 0);
 
@@ -303,6 +325,23 @@ export function Dashboard() {
               <p className="text-xs text-brand-600">Necessário para calcular o lucro</p>
             </div>
           </button>
+        )}
+
+        {totalPending > 0 && (
+          <Card className="p-4 border-amber-200 bg-amber-50">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-1">
+                  A Receber
+                </p>
+                <p className="text-2xl font-bold text-amber-800">{formatCurrency(totalPending)}</p>
+                <p className="text-xs text-amber-600 mt-0.5">
+                  {pendingCount} {pendingCount === 1 ? 'pedido não pago' : 'pedidos não pagos'}
+                </p>
+              </div>
+              <span className="text-4xl">🕐</span>
+            </div>
+          </Card>
         )}
 
         <section>
@@ -372,7 +411,7 @@ export function Dashboard() {
               <p className="text-xl font-bold text-stone-800">{thisMonthUnits}</p>
             </Card>
             <Card className="p-3">
-              <p className="text-xs text-stone-400 mb-1">Receita</p>
+              <p className="text-xs text-stone-400 mb-1">Vendido</p>
               <p className="text-lg font-bold text-stone-800">{formatCurrency(thisMonthRevenue)}</p>
             </Card>
             <Card className="p-3">
@@ -403,8 +442,9 @@ export function Dashboard() {
                     contentStyle={{ borderRadius: 12, border: '1px solid #e7e5e4', fontSize: 12 }}
                   />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Bar dataKey="receita" name="Receita" fill="#22c55e" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="custo" name="Custo" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="recebido" name="Recebido" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="aReceber" name="A Receber" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="custo" name="Custo" fill="#ef4444" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="lucro" name="Lucro" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>

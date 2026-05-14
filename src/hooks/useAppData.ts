@@ -54,6 +54,10 @@ export function useAppData() {
     setSales((prev) => prev.filter((s) => s.id !== id));
   }
 
+  function markSaleAsPaid(id: string, paidAt: string) {
+    setSales((prev) => prev.map((s) => (s.id === id ? { ...s, paidAt } : s)));
+  }
+
   function updateSettings(next: Settings) {
     setSettings(next);
   }
@@ -146,6 +150,7 @@ export function useAppData() {
     addPurchase,
     addSale,
     deleteSale,
+    markSaleAsPaid,
     updateSettings,
     updateRecipeIngredientAmount,
     addIngredientToRecipe,

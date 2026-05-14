@@ -150,4 +150,4 @@ export const INITIAL_SETTINGS: Settings = {
   },
 };
 
-export const DATA_VERSION = '1.0';
+export const DATA_VERSION = '1.7';
