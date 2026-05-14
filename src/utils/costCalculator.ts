@@ -67,3 +67,36 @@ export function getIngredientUnitLabel(ingredient: Ingredient): string {
   const map: Record<string, string> = { g: 'g', ml: 'ml', un: 'un' };
   return map[ingredient.unit] ?? ingredient.unit;
 }
+
+export function calcDueDate(saleDate: string): string {
+  const [y, m, d] = saleDate.split('-').map(Number);
+  if (d < 5) {
+    return `${y}-${String(m).padStart(2, '0')}-05`;
+  } else if (d < 20) {
+    return `${y}-${String(m).padStart(2, '0')}-20`;
+  } else {
+    const next = new Date(y, m, 5);
+    return next.toISOString().slice(0, 10);
+  }
+}
+
+export function getUpcomingDueDates(): string[] {
+  const today = new Date();
+  const dates: string[] = [];
+  for (let i = 0; i < 3; i++) {
+    const t = new Date(today.getFullYear(), today.getMonth() + Math.floor(i / 2), i % 2 === 0 ? 5 : 20);
+    dates.push(t.toISOString().slice(0, 10));
+  }
+  const result: string[] = [];
+  const y = today.getFullYear();
+  const m = today.getMonth();
+  const candidates = [
+    `${y}-${String(m + 1).padStart(2, '0')}-05`,
+    `${y}-${String(m + 1).padStart(2, '0')}-20`,
+    new Date(y, m + 1, 5).toISOString().slice(0, 10),
+    new Date(y, m + 1, 20).toISOString().slice(0, 10),
+  ];
+  const todayStr = today.toISOString().slice(0, 10);
+  candidates.forEach((d) => { if (d >= todayStr) result.push(d); });
+  return [...new Set(result)].sort().slice(0, 3);
+}
